@@ -61,7 +61,21 @@ def value_iteration(env, gamma=0.9, max_iterations=10**6, eps=10**-3):
     policy = np.array([env.action_space.sample() for _ in range(num_spaces)])
 
     ##### FINISH TODOS HERE #####
+    R, P = get_rewards_and_transitions_from_env(env)
+    V = np.zeros(num_spaces)
 
+    for _ in range(max_iterations):
+        delta = 0.0
+
+        for s in range(num_spaces):
+            v = V[s]
+            V[s] = np.max(np.sum(P[s] * (R[s] + gamma * V), axis=-1), axis=-1)
+            delta = np.fmax(delta, np.fabs(v - V[s]))
+
+        if delta < eps:
+            break
+
+    policy = np.argmax(np.sum(P * (R + gamma * V), axis=-1), axis=-1)
     #############################
 
     # Return optimal policy
@@ -103,7 +117,30 @@ def policy_iteration(env, gamma=0.9, max_iterations=10**6, eps=10**-3):
     policy = np.array([env.action_space.sample() for _ in range(num_spaces)])
 
     ##### FINISH TODOS HERE #####
+    R, P = get_rewards_and_transitions_from_env(env)
+    V = np.zeros(num_spaces)
 
+    while True:
+        # Policy evaluation
+        for _ in range(max_iterations):
+            delta = 0.0
+
+            for s in range(num_spaces):
+                v = V[s]
+                V[s] = np.sum(P[s, policy[s], :] *
+                              (R[s, policy[s], :] + gamma * V),
+                              axis=-1)
+                delta = np.fmax(delta, np.fabs(v - V[s]))
+
+            if delta < eps:
+                break
+
+        # Policy improvement
+        old_policy = policy.copy()
+        policy = np.argmax(np.sum(P * (R + gamma * V), axis=-1), axis=-1)
+
+        if (policy == old_policy).all():
+            break
     #############################
 
     # Return optimal policy
