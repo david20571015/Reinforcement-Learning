@@ -65,12 +65,9 @@ def value_iteration(env, gamma=0.9, max_iterations=10**6, eps=10**-3):
     V = np.zeros(num_spaces)
 
     for _ in range(max_iterations):
-        delta = 0.0
-
-        for s in range(num_spaces):
-            v = V[s]
-            V[s] = np.max(np.sum(P[s] * (R[s] + gamma * V), axis=-1), axis=-1)
-            delta = np.fmax(delta, np.fabs(v - V[s]))
+        v = V
+        V = np.max(np.sum(P * (R + gamma * V), axis=-1), axis=-1)
+        delta = np.fmax(0, np.linalg.norm(v - V, ord=np.inf))
 
         if delta < eps:
             break
@@ -123,14 +120,9 @@ def policy_iteration(env, gamma=0.9, max_iterations=10**6, eps=10**-3):
     while True:
         # Policy evaluation
         for _ in range(max_iterations):
-            delta = 0.0
-
-            for s in range(num_spaces):
-                v = V[s]
-                V[s] = np.sum(P[s, policy[s], :] *
-                              (R[s, policy[s], :] + gamma * V),
-                              axis=-1)
-                delta = np.fmax(delta, np.fabs(v - V[s]))
+            v = V
+            V = policy.choose(np.sum(P * (R + gamma * V), axis=-1).T)
+            delta = np.fmax(0, np.linalg.norm(v - V, ord=np.inf))
 
             if delta < eps:
                 break
