@@ -5,8 +5,11 @@ name = "pypi"
 
 [packages]
 numpy = "*"
-gym = "*"
+gym = {extras = ["box_2d"], version = "*"}
 pygame = "*"
+torch = "*"
+tensorboard = "*"
+box2d-kengz = "*"
 
 [dev-packages]
 
