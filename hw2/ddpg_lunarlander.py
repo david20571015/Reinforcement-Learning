@@ -86,7 +86,9 @@ class Actor(nn.Module):
         ########## YOUR CODE HERE (5~10 lines) ##########
         # Construct your own actor network
         self.net = nn.Sequential(
-            nn.Linear(num_inputs, hidden_size * 2),
+            nn.Linear(num_inputs, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size * 2),
             nn.ReLU(),
             nn.Linear(hidden_size * 2, hidden_size),
             nn.ReLU(),
@@ -117,7 +119,9 @@ class Critic(nn.Module):
         self.action_net = nn.Sequential(nn.Linear(num_outputs, hidden_size))
         self.net = nn.Sequential(
             nn.ReLU(),
-            nn.Linear(hidden_size, hidden_size),
+            nn.Linear(hidden_size * 2, hidden_size * 2),
+            nn.ReLU(),
+            nn.Linear(hidden_size * 2, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, 1),
         )
@@ -128,7 +132,7 @@ class Critic(nn.Module):
         # Define the forward pass your critic network
         x = self.critic_net(inputs)
         y = self.action_net(actions)
-        return self.net(x + y)
+        return self.net(torch.cat((x, y), dim=-1))
         ########## END OF YOUR CODE ##########
 
 
@@ -245,18 +249,18 @@ class DDPG(object):
 def train():
     num_episodes = 2000
     gamma = 0.995
-    tau = 0.0002
-    hidden_size = 256
+    tau = 0.002
+    hidden_size = 128
     noise_scale = 0.3
-    replay_size = 100000
+    replay_size = 50000
     batch_size = 128
-    updates_per_step = 1
+    updates_per_step = 5
     print_freq = 1
     ewma_reward = 0
     rewards = []
     ewma_reward_history = []
     updates = 0
-    lr_a = 1e-4
+    lr_a = 5e-4
     lr_c = 1e-3
 
     agent = DDPG(
