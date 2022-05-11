@@ -8,9 +8,10 @@ authors = ["David, Chiu <david20571015@gmail.com>"]
 python = "^3.8"
 torch = "^1.11.0"
 numpy = "^1.22.3"
-gym = "^0.23.1"
+gym = {extras = ["Box_2D"], version = "^0.23.1"}
 pygame = "^2.1.2"
 tensorboard = "^2.9.0"
+Box2D = "^2.3.10"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13.8"
